@@ -9,7 +9,7 @@ module Anemone
       def initialize(opts = {})
         @redis = ::Redis.new(opts)
         @key_prefix = opts[:key_prefix] || 'anemone'
-        keys.each { |key| delete(key) }
+        @redis.del @redis.keys("#{@key_prefix}:pages:*")
       end
 
       def [](key)
