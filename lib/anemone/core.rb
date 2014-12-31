@@ -1,6 +1,7 @@
 require 'thread'
 require 'robotex'
-require 'anemone/tentacle'
+require 'anemone/tentacle/base'
+require 'anemone/tentacle/http_tentacle'
 require 'anemone/page'
 require 'anemone/exceptions'
 require 'anemone/page_store'
@@ -55,7 +56,9 @@ module Anemone
       # proxy server port number
       :proxy_port => false,
       # HTTP read timeout in seconds
-      :read_timeout => nil
+      :read_timeout => nil,
+      # default to the HTTP Tentacle
+      :tentacle => Anemone::Tentacle::HttpTentacle
     }
 
     # Create setter methods for all options to be called from the crawl block
@@ -155,7 +158,7 @@ module Anemone
       page_queue = Queue.new
 
       @opts[:threads].times do
-        @tentacles << Thread.new { Tentacle.new(link_queue, page_queue, @opts).run }
+        @tentacles << Thread.new { @opts[:tentacle].new(link_queue, page_queue, @opts).run }
       end
 
       @urls.each{ |url| link_queue.enq(url) }
