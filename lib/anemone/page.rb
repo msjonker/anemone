@@ -30,6 +30,8 @@ module Anemone
     # Response time of the request for this page in milliseconds
     attr_accessor :response_time
 
+    attr_accessor :links
+
     #
     # Create a new page
     #
