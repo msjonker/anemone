@@ -1,7 +1,9 @@
 begin
-  require 'mongo'
+  require 'moped'
+  require 'bson'
+  require 'bson/binary'
 rescue LoadError
-  puts "You need the mongo gem to use Anemone::Storage::MongoDB"
+  puts "You need the moped gem to use Anemone::Storage::MongoDB"
   exit
 end
 
@@ -14,12 +16,12 @@ module Anemone
       def initialize(mongo_db, collection_name)
         @db = mongo_db
         @collection = @db[collection_name]
-        @collection.remove
-        @collection.create_index 'url'
+        @collection.drop
+        @collection.indexes.create(url: 1)
       end
 
       def [](url)
-        if value = @collection.find_one('url' => url.to_s)
+        if value = @collection.find('url' => url.to_s).one
           load_page(value)
         end
       end
@@ -29,16 +31,12 @@ module Anemone
         BINARY_FIELDS.each do |field|
           hash[field] = BSON::Binary.new(hash[field]) unless hash[field].nil?
         end
-        @collection.update(
-          {'url' => page.url.to_s},
-          hash,
-          :upsert => true
-        )
+        @collection.find('url' => page.url.to_s).upsert(hash)
       end
 
       def delete(url)
         page = self[url]
-        @collection.remove('url' => url.to_s)
+        @collection.find('url' => url.to_s).remove_all
         page
       end
 
@@ -67,11 +65,11 @@ module Anemone
       end
 
       def has_key?(url)
-        !!@collection.find_one('url' => url.to_s)
+        !!@collection.find('url' => url.to_s).one
       end
 
       def close
-        @db.connection.close
+        @db.session.disconnect
       end
 
       private

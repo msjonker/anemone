@@ -25,8 +25,8 @@ module Anemone
 
     def self.MongoDB(mongo_db = nil, collection_name = 'pages')
       require 'anemone/storage/mongodb'
-      mongo_db ||= Mongo::Connection.new.db('anemone')
-      raise "First argument must be an instance of Mongo::DB" unless mongo_db.is_a?(Mongo::DB)
+      mongo_db ||= Moped::Session.new([ "localhost:27017" ]).use('anemone')
+      raise "First argument must be an instance of Moped::Database" unless mongo_db.is_a?(Moped::Database)
       self::MongoDB.new(mongo_db, collection_name)
     end
 
