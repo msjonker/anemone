@@ -177,19 +177,22 @@ module Anemone
       @urls.each{ |url| link_queue.enq(url) }
 
       loop do
-        page = page_queue.deq
-        @pages.touch_key page.url
-        puts "#{page.url} Queue: #{link_queue.size}" if @opts[:verbose]
-        do_page_blocks page
-        page.discard_doc! if @opts[:discard_page_bodies]
+        begin
+          page = page_queue.deq(true)
+          @pages.touch_key page.url
+          puts "#{page.url} Queue: #{link_queue.size}" if @opts[:verbose]
+          do_page_blocks page
+          page.discard_doc! if @opts[:discard_page_bodies]
 
-        links = links_to_follow page
-        links.each do |link|
-          link_queue << [link, page.url.dup, page.depth + 1]
+          links = links_to_follow page
+          links.each do |link|
+            link_queue << [link, page.url.dup, page.depth + 1]
+          end
+          @pages.touch_keys links
+
+          @pages[page.url] = page
+        rescue ThreadError
         end
-        @pages.touch_keys links
-
-        @pages[page.url] = page
 
         if @stop_crawl
           page_queue.clear
