@@ -39,6 +39,11 @@ module Anemone
       require 'anemone/storage/redis'
       self::Redis.new(opts)
     end
+
+    def self.LightweightRedis(opts = {})
+      require 'anemone/storage/lightweight_redis'
+      self::LightweightRedis.new(opts)
+    end
     
     def self.SQLite3(file = 'anemone.db')
       require 'anemone/storage/sqlite3'

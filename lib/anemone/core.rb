@@ -182,7 +182,7 @@ module Anemone
         begin
           page = page_queue.deq(true)
           @pages.touch_key page.url
-          puts "#{page.url} Queue: #{link_queue.size}" if @opts[:verbose]
+          puts "#{page.url} Page Queue: #{page_queue.size} Link Queue: #{link_queue.size}" if @opts[:verbose]
           do_page_blocks page
           page.discard_doc! if @opts[:discard_page_bodies]
 
@@ -205,6 +205,7 @@ module Anemone
         if link_queue.empty? and page_queue.empty?
           until link_queue.num_waiting == @tentacles.size
             Thread.pass
+            break unless page_queue.empty? #page queue could be filled again by waiting threads
           end
           if page_queue.empty? || @stop_crawl
             @tentacles.size.times { link_queue << :END }

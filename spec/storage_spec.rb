@@ -64,7 +64,7 @@ module Anemone
       end
     end
 
-    describe ".MongoDB" do
+    describe ".Redis" do
       it "returns a Redis adapter" do
         store = Anemone::Storage.Redis
         store.should be_an_instance_of(Anemone::Storage::Redis)
