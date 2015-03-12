@@ -1,12 +1,14 @@
 require 'thread'
-require 'robotex'
-require 'anemone/tentacle/base'
+require 'robots'
+require 'json'
 require 'anemone/tentacle/http_tentacle'
 require 'anemone/page'
 require 'anemone/exceptions'
 require 'anemone/page_store'
 require 'anemone/storage'
 require 'anemone/storage/base'
+require 'anemone/queue'
+require 'anemone/queue/base'
 
 module Anemone
 
@@ -169,8 +171,11 @@ module Anemone
       @urls.delete_if { |url| !visit_link?(url) }
       return if @urls.empty?
 
-      link_queue = Queue.new
-      page_queue = SizedQueue.new(@opts[:max_page_queue_size])
+      # create link queue
+      link_queue = @opts[:link_queue] || Anemone::Queue.Basic
+
+      # create page queue
+      page_queue = @opts[:page_queue] || Anemone::Queue.Basic
 
       @opts[:threads].times do
         @tentacles << Thread.new { @opts[:tentacle].new(link_queue, page_queue, @opts).run }
@@ -226,7 +231,7 @@ module Anemone
       @opts[:threads] = 1 if @opts[:delay] > 0
       storage = Anemone::Storage::Base.new(@opts[:storage] || Anemone::Storage.Hash)
       @pages = PageStore.new(storage)
-      @robots = Robotex.new(@opts[:user_agent]) if @opts[:obey_robots_txt]
+      @robots = Robots.new(@opts[:user_agent]) if @opts[:obey_robots_txt]
 
       freeze_options
     end
