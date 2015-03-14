@@ -1,6 +1,7 @@
 require 'thread'
 require 'robots'
 require 'json'
+require 'anemone/tentacle/base'
 require 'anemone/tentacle/http_tentacle'
 require 'anemone/page'
 require 'anemone/exceptions'
