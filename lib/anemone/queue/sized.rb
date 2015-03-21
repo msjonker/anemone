@@ -1,9 +1,9 @@
 module Anemone
   module Queue
-    class Sized < DelegateClass ::Queue
+    class Sized < DelegateClass(SizedQueue)
 
       def initialize(max)
-        super ::SizedQueue.new(max)
+        super SizedQueue.new(max)
       end
 
     end

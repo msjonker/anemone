@@ -19,7 +19,7 @@ module Anemone
         loop do
           link, referer, depth = @link_queue.deq
 
-          break if link == :END
+          break if link == 'END'
 
           fetch_pages(link, referer, depth)
 

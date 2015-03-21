@@ -11,21 +11,25 @@ module Anemone
 
       def initialize(opts = {})
         @opts = opts
-        @list = "#{@opts[:key_prefix] || 'anemone'}:#{self.hash.abs}"
+        @list = "#{@opts[:key_prefix] || 'anemone'}:queue"
         @waiting = "#{@list}:waiting"
         clear
       end
 
-      def <<(job)
-        redis.lpush(@list,job.to_json)
+      def push(job)
+        redis.lpush(@list,job)
       end
+      alias_method :enq, :push
+      alias_method :<<, :push
 
-      def deq
+      def pop(non_block=false)
         redis.incr(@waiting)
         job = redis.brpop(@list, @opts[:timeout] || 0)
         redis.decr(@waiting)
-        JSON.parse(job.last) rescue nil
+        job.last rescue nil
       end
+      alias_method :deq, :pop
+      alias_method :shift, :pop
 
       def empty?
         size == 0

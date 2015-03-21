@@ -192,7 +192,7 @@ module Anemone
 
           links = links_to_follow page
           links.each do |link|
-            link_queue << [link, page.url.dup, page.depth + 1]
+            link_queue << link
           end
           @pages.touch_keys links
 
@@ -212,7 +212,7 @@ module Anemone
             break unless page_queue.empty? #page queue could be filled again by waiting threads
           end
           if page_queue.empty? || @stop_crawl
-            @tentacles.size.times { link_queue << :END }
+            @tentacles.size.times { link_queue << 'END' }
             break
           end
         end

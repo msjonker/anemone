@@ -15,13 +15,17 @@ module Anemone
         end
       end
 
-      def <<(job)
-        @adap << job rescue raise InsertionError, $!
+      def push(job)
+        @adap.push(job) rescue raise InsertionError, $!
       end
+      alias_method :enq, :push
+      alias_method :<<, :push
 
-      def deq
-        @adap.deq rescue raise RetrievalError, $!
+      def pop(non_block=false)
+        @adap.pop(non_block) rescue raise RetrievalError, $!
       end
+      alias_method :deq, :pop
+      alias_method :shift, :pop
 
       def empty?
         @adap.empty rescue raise GenericError, $!
